@@ -57,12 +57,13 @@ func main() {
 		Title:            "MDeck",
 		Width:            app.windowState.Width,
 		Height:           app.windowState.Height,
-		MinWidth:         900,
-		MinHeight:        600,
+		MinWidth:         800,
+		MinHeight:        560,
 		Frameless:        true,
 		CSSDragProperty:  "--wails-draggable",
 		CSSDragValue:     "drag",
 		DisableResize:    false,
+		EnableDefaultContextMenu: false,
 		BackgroundColour: &options.RGBA{R: 9, G: 10, B: 13, A: 255},
 		AssetServer: &assetserver.Options{
 			Assets: assets,
@@ -73,9 +74,6 @@ func main() {
 		OnShutdown:    app.shutdown,
 		Windows:       windowsOptions,
 		Linux:         linuxOptions,
-		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: "mdeck-desktop-single-instance",
-		},
 		Bind: []interface{}{app},
 	})
 	if err != nil {

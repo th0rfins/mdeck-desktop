@@ -77,6 +77,20 @@ func (a *App) startup(ctx context.Context) {
 			}
 		}
 	}()
+
+	// seamless window geometry autosave (like Gotion, every 2s)
+	go func() {
+		ticker := time.NewTicker(2000 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				a.SaveWindowState()
+			}
+		}
+	}()
 }
 
 func (a *App) domReady(ctx context.Context) {
@@ -145,4 +159,19 @@ func (a *App) Close() { if a.ctx != nil { runtime.Quit(a.ctx) } }
 func (a *App) Minimise() { if a.ctx != nil { runtime.WindowMinimise(a.ctx) } }
 func (a *App) ToggleMaximise() { if a.ctx != nil { runtime.WindowToggleMaximise(a.ctx) } }
 func (a *App) Reload() { if a.ctx != nil { runtime.WindowReload(a.ctx) } }
-func (a *App) GetVersion() string { return "1.0.0" }
+func (a *App) ZoomIn() {
+	if a.ctx != nil {
+		runtime.WindowExecJS(a.ctx, "window.__mdeck_triggerZoomIn&&window.__mdeck_triggerZoomIn()")
+	}
+}
+func (a *App) ZoomOut() {
+	if a.ctx != nil {
+		runtime.WindowExecJS(a.ctx, "window.__mdeck_triggerZoomOut&&window.__mdeck_triggerZoomOut()")
+	}
+}
+func (a *App) ResetZoom() {
+	if a.ctx != nil {
+		runtime.WindowExecJS(a.ctx, "window.__mdeck_triggerResetZoom&&window.__mdeck_triggerResetZoom()")
+	}
+}
+func (a *App) GetVersion() string { return "1.1.0" }

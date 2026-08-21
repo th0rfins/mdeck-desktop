@@ -1,0 +1,10 @@
+build/bin/
+frontend/dist/
+frontend/node_modules/
+*.exe
+*.AppImage
+*.deb
+*.rpm
+*.dmg
+*.zip
+wailsjs/

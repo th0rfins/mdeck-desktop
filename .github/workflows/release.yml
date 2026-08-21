@@ -1,0 +1,69 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: server
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          cd server
+          npm install
+          npm run build
+          ./scripts/package.sh /tmp/mdeck-server-${{ github.ref_name }}.zip
+          ls -lh /tmp/*.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mdeck-server
+          path: /tmp/mdeck-server-*.zip
+
+  build-client:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux/amd64
+            out: mdeck-desktop-linux-amd64
+          - os: windows-latest
+            platform: windows/amd64
+            out: mdeck-desktop-windows-amd64.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+      - name: Install Wails
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+      - name: Build client
+        run: |
+          ~/go/bin/wails build -platform ${{ matrix.platform }} -ldflags "-s -w" -o ${{ matrix.out }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.out }}
+          path: build/bin/${{ matrix.out }}*
+
+  release:
+    needs: [build-server, build-client]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - run: |
+          ls -R dist
+          cd dist && sha256sum **/* > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/*

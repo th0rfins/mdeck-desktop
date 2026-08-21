@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "mdeck-desktop",
+  "outputfilename": "mdeck-desktop",
+  "wailsjsdir": "./frontend",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "author": {
+    "name": "MDeck",
+    "email": "dev@mdeck.local"
+  },
+  "info": {
+    "companyName": "MDeck",
+    "productName": "MDeck Desktop",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright (c) 2026 MDeck",
+    "comments": "Multi-machine MDeck client — frameless traffic-light titlebar, bookmark hub"
+  }
+}

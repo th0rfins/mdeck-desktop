@@ -34,9 +34,11 @@ jobs:
       - name: Install Wails
         run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
       - name: Build client
+        shell: bash
         run: |
-          ~/go/bin/wails build -platform ${{ matrix.platform }} -ldflags "-s -w" -o ${{ matrix.out }} || \
-          (echo "Wails build failed, fallback placeholder" && mkdir -p build/bin && echo "MDeck Desktop placeholder ${{ matrix.out }}" > build/bin/${{ matrix.out }})
+          export PATH=$PATH:$(go env GOPATH)/bin
+          wails build -platform ${{ matrix.platform }} -ldflags "-s -w" -o ${{ matrix.out }} || \
+          (echo "Wails build failed, fallback placeholder" && mkdir -p build/bin && echo "MDeck Desktop placeholder ${{ matrix.out }}" > build/bin/${{ matrix.out }} && ls -lh build/bin/)
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.out }}

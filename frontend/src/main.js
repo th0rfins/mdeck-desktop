@@ -50,16 +50,16 @@ function render(list, filter=''){
   app.innerHTML='';
   const filtered = filter ? list.filter(b=> (b.label+b.url).toLowerCase().includes(filter.toLowerCase())) : list;
 
-  // hero
+  // hero — soft glass banner with icon + search
   const hero = el(`
     <div class="hero">
       <div class="hero-left">
         <div class="hero-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 9l3 3-3 3"/><path d="M13 15h4"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 9l3 3-3 3"/><path d="M13 15h4"/></svg>
         </div>
         <div>
-          <div style="font-weight:800;letter-spacing:-.6px;font-size:16px">MDeck Hub</div>
-          <div class="hero-sub">Pilih mesin untuk konek — bookmark dengan warna, buka multi-window seperti terminal. <span class="kbd">Ctrl N</span> new window · <span class="kbd">Ctrl ±</span> zoom</div>
+          <div style="font-weight:800;letter-spacing:-.6px;font-size:17px;background:linear-gradient(90deg,#f0f1f3,#a8c2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">MDeck Hub</div>
+          <div class="hero-sub">Pilih mesin untuk konek — bookmark berwarna, multi-window seperti terminal. <span class="kbd">Ctrl N</span> · <span class="kbd">Ctrl ±</span></div>
         </div>
       </div>
       <div class="hero-actions">
@@ -72,7 +72,7 @@ function render(list, filter=''){
   `);
   app.appendChild(hero);
 
-  // form
+  // form — inline "add machine" row
   const form = el(`
     <div class="form">
       <div class="form-field">
@@ -83,11 +83,11 @@ function render(list, filter=''){
         <label>URL</label>
         <input id="url" placeholder="https://hk1.projectpop.xyz" />
       </div>
-      <div class="form-field" style="max-width:140px">
+      <div class="form-field" style="max-width:130px">
         <label>Warna</label>
         <select id="color">${colorKeys.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
       </div>
-      <button class="btn primary" id="addBtn" style="height:38px;align-self:flex-end">Save bookmark</button>
+      <button class="btn primary" id="addBtn" style="height:38px;align-self:flex-end">Save</button>
     </div>
   `);
   app.appendChild(form);
@@ -105,7 +105,7 @@ function render(list, filter=''){
       const card = el(`
         <div class="card" style="--c:${col.bg};--c-glow:${col.glow};animation:fadeIn .45s ease ${idx*40}ms both">
           <div class="card-top">
-            <span class="badge" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--text)"><i style="background:${col.bg};box-shadow:0 0 10px ${col.glow}"></i>${b.color}</span>
+            <span class="badge"><i style="background:${col.bg};box-shadow:0 0 10px ${col.glow}"></i>${b.color}</span>
             <span class="card-id">${b.id.slice(0,8)}</span>
           </div>
           <div class="card-label" title="${b.label}">${b.label}</div>
@@ -115,27 +115,24 @@ function render(list, filter=''){
             <button class="btn newwin">New Window</button>
             <button class="btn ghost del" title="Delete">✕</button>
           </div>
-          <div class="card-dot" style="background:${col.bg}"></div>
         </div>
       `);
       card.querySelector('.connect').onclick=()=>connect(b.url);
       card.querySelector('.newwin').onclick=()=>newWindow(b.url);
       card.querySelector('.del').onclick=async(e)=>{ e.stopPropagation(); if(confirm('Hapus '+b.label+'?')){ const next=await deleteBookmark(b.id); render(next, hero.querySelector('#search').value); } };
       card.ondblclick=()=>connect(b.url);
-      // click card = connect
       card.addEventListener('click', (e)=>{ if(e.target.closest('button')) return; connect(b.url); });
       grid.appendChild(card);
     });
   }
   app.appendChild(grid);
 
-  // footer hint
-  app.appendChild(el(`<div class="hint" style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-    <span>Tip: <span class="kbd">Double click</span> card untuk connect · <span class="kbd">Shift+drag</span> di terminal untuk tmux selection</span>
+  // footer
+  app.appendChild(el(`<div class="footer-hint">
+    <span><span class="kbd">Double click</span> connect · <span class="kbd">Ctrl ±</span> zoom · <span class="kbd">Shift+drag</span> tmux selection</span>
     <span style="margin-left:auto;opacity:.7">${list.length} bookmark · ${filtered.length} shown</span>
   </div>`));
 
-  // events
   const search = hero.querySelector('#search');
   search.value = filter;
   search.addEventListener('input', ()=> render(list, search.value));
@@ -150,7 +147,6 @@ function render(list, filter=''){
     form.querySelector('#label').value=''; form.querySelector('#url').value='';
     render(next, search.value);
   };
-  // enter to save
   form.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); form.querySelector('#addBtn').click(); } });
 }
 
